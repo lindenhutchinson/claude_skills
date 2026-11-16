@@ -87,18 +87,19 @@ if (Test-Path $skillsSrc) {
 Get-ChildItem -Path $source -File -Recurse |
     Where-Object { -not $_.FullName.StartsWith($skillsSrc + '\') } |
     ForEach-Object {
-        $relative = $_.FullName.Substring($source.Length).TrimStart('\')
+        $file     = $_   # inside catch, $_ is the error record
+        $relative = $file.FullName.Substring($source.Length).TrimStart('\')
         $dest     = Join-Path $target $relative
         $destDir  = Split-Path -Parent $dest
         if (-not (Test-Path $destDir)) { New-Item -ItemType Directory -Path $destDir | Out-Null }
 
-        if (Clear-Destination $dest $_.FullName $relative) {
+        if (Clear-Destination $dest $file.FullName $relative) {
             try {
-                New-Item -ItemType SymbolicLink -Path $dest -Target $_.FullName -ErrorAction Stop | Out-Null
+                New-Item -ItemType SymbolicLink -Path $dest -Target $file.FullName -ErrorAction Stop | Out-Null
                 Write-Host "link   $relative"
             } catch {
-                Copy-Item $_.FullName $dest -Force
-                Write-Warning "copy   $relative (symlink unavailable - enable Developer Mode; this copy will drift)"
+                Copy-Item $file.FullName $dest -Force
+                Write-Warning "copy   $relative (symlink failed: $($_.Exception.Message) - enable Developer Mode; this copy will drift)"
             }
         }
     }
