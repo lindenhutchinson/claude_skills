@@ -434,10 +434,15 @@ def cmd_addr(ctx: Ctx, args: argparse.Namespace) -> int:
     else:
         raise CoordError("give NAME or --role ROLE")
     if target is None:
-        raise CoordError(f"no live agent for {what} on the board; leave a note instead: coord note --to {args.role or args.name} ...")
+        raise CoordError(
+            f"no live agent for {what} on the board; leave a note instead: coord note --to {args.role or args.name} ..."
+        )
     print(target.msg_name or target.name)
     if not target.msg_name:
-        print(f"coord: {target.name!r} joined without --msg-name; assuming its board name is its SendMessage name", file=sys.stderr)
+        print(
+            f"coord: {target.name!r} joined without --msg-name; assuming its board name is its SendMessage name",
+            file=sys.stderr,
+        )
     return EXIT_OK
 
 

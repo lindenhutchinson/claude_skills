@@ -1,0 +1,19 @@
+{
+  "description": "Guards over shell commands: deny recursive deletes and Co-Authored-By trailers, ask before destructive git and SQL.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell|Monitor",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv",
+            "args": ["run", "--quiet", "--script", "${CLAUDE_PLUGIN_ROOT}/hooks/guard.py"],
+            "timeout": 20,
+            "onFailure": "block"
+          }
+        ]
+      }
+    ]
+  }
+}
