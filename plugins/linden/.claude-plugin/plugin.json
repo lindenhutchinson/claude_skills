@@ -5,6 +5,8 @@
   "author": {
     "name": "Linden Hutchinson"
   },
+  "homepage": "https://github.com/lindenhutchinson/claude_skills",
+  "repository": "https://github.com/lindenhutchinson/claude_skills",
   "license": "MIT",
   "keywords": ["workflow", "verification", "delegation", "conventions"]
 }

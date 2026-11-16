@@ -40,6 +40,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Self
 
 EXIT_OK, EXIT_ERROR, EXIT_CONFLICT, EXIT_MUTEX, EXIT_WAIT = 0, 1, 2, 3, 4
 
@@ -97,7 +98,7 @@ class Mutex:
         self.holder = holder
         self.fd: int | None = None
 
-    def __enter__(self) -> Mutex:
+    def __enter__(self) -> Self:
         fd = os.open(self.path, os.O_RDWR | os.O_CREAT | getattr(os, "O_BINARY", 0), 0o644)
         deadline = time.monotonic() + self.timeout
         delay = 0.005
@@ -162,7 +163,7 @@ def _now_iso() -> str:
 
 
 def _parse_iso(ts: str) -> float:
-    return datetime.fromisoformat(ts.replace("Z", "+00:00")).timestamp()
+    return datetime.fromisoformat(ts).timestamp()  # accepts a trailing Z since 3.11
 
 
 def read_events(directory: Path, since: int = 0) -> list[dict]:
@@ -582,7 +583,7 @@ def cmd_with(ctx: Ctx, args: argparse.Namespace) -> int:
     _warn_shared_tree(ctx, name, keys)
     print(f"[coord] holding {', '.join(args.keys)}; running: {' '.join(command)}", file=sys.stderr, flush=True)
     try:
-        code = subprocess.run(command).returncode
+        code = subprocess.run(command, check=False).returncode  # the exit code is passed through
     except OSError as e:
         print(f"[coord] could not run {command[0]}: {e}", file=sys.stderr)
         code = 127

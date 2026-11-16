@@ -42,7 +42,7 @@ Status: **live** = written and installed · **drafted** = written, not yet promo
 
 | Item | Status | Evidence |
 |---|---|---|
-| A read-only Bash allowlist in global `settings.json` | queued | The same core (`ls`, `grep`, `find`, `wc`, `git status/log/diff`) is re-derived by hand in four repos' `settings.local.json`, with drift and accidental entries. Global settings currently has no `permissions` block at all. Needs a **merge** strategy, not a file copy — `sync-home.ps1` links whole files and must not clobber machine-local settings. |
+| A read-only Bash allowlist in global `settings.json` | queued | The same core (`ls`, `grep`, `find`, `wc`, `git status/log/diff`) is re-derived by hand in four repos' `settings.local.json`, with drift and accidental entries. Global settings currently has no `permissions` block at all. Needs a **merge** strategy, not a file copy — `sync_home.py` links whole files and must not clobber machine-local settings. |
 | Line-ending and commit-format guards as hooks | queued | No hooks exist anywhere, despite two repos carrying hook-shaped rules enforced by prose alone. |
 
 

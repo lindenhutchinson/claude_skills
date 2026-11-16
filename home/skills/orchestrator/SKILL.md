@@ -40,7 +40,7 @@ workers are terminals the user opens; hand them the first prompt to paste.
 You may run: `coord` (any command), `git status --short`, `git worktree list`, `git log --oneline -n`,
 `ListAgents`, `SendMessage`, reads of the board and `summaries/`, and Herdr `agent list/get/read/wait/prompt/start/rename`,
 `pane list/get/layout`, `tab list/create`, `worktree list`, `workspace list`, `notification show`, `status`.
-`tab close`, and writes/Recycle-Bin removals in `summaries/`, only as *Winding down* says.
+`tab close`, and writes/trash removals in `summaries/`, only as *Winding down* says.
 
 ## Startup
 
@@ -163,7 +163,7 @@ Finished workers don't linger.
 
 **Closing an unfinished worker (user's request).** List what would be lost (claims, state, and by asking it: uncommitted work, untested changes, open questions). Close only on their yes, after asking for a summary. `coord reap` only if it can't leave itself.
 
-**Removing files.** Nothing is deleted: Recycle Bin, one literal absolute path at a time, via `[Microsoft.VisualBasic.FileIO.FileSystem]::DeleteDirectory`/`DeleteFile` with `'SendToRecycleBin'` (coord-worker has the call). No recursive deletes; nobody empties the bin. A worktree and branch are the user's to merge or drop.
+**Removing files.** Nothing is deleted: it goes to the OS trash, one literal absolute path at a time (coord-worker has the command per OS). No recursive deletes; nobody empties the trash. A worktree and branch are the user's to merge or drop.
 
 **Summaries.** Workers write `<coord dir>/summaries/<name>.md` (`coord where`; shared, untracked): task, commits, untested, open questions. Read these, not screens. You keep `summaries/INDEX.md`, one line per closed worker, newest first:
 

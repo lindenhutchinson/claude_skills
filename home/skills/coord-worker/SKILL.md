@@ -20,7 +20,7 @@ coord='uv run --quiet --script "$HOME/.claude/skills/coord-worker/scripts/coord.
 ```
 
 That line documents the invocation; it does not persist between shell calls. Spell the full command out
-every time. It works unchanged in Git Bash and PowerShell 7. Run it from anywhere inside the repo or one of
+every time. It works unchanged in bash, zsh, Git Bash and PowerShell 7. Run it from anywhere inside the repo or one of
 its worktrees.
 
 | Command | Use |
@@ -161,19 +161,19 @@ doesn't sit open.
 
 2. **Clean up after yourself.** Remove what you generated that isn't part of the result: scratch
    output, temp logs, screenshots and one-off scripts, in the repo or your scratchpad. **Removing means
-   sending to the Recycle Bin, never deleting**, one literal absolute path at a time:
+   sending to the OS trash, never deleting**, one literal absolute path at a time:
 
-   ```powershell
-   Add-Type -AssemblyName Microsoft.VisualBasic
-   [Microsoft.VisualBasic.FileIO.FileSystem]::DeleteDirectory('<abs path>', 'OnlyErrorDialogs', 'SendToRecycleBin')
-   [Microsoft.VisualBasic.FileIO.FileSystem]::DeleteFile('<abs path>', 'OnlyErrorDialogs', 'SendToRecycleBin')
-   ```
+   | OS | Command |
+   | --- | --- |
+   | Windows (PowerShell) | `Add-Type -AssemblyName Microsoft.VisualBasic`, then `[Microsoft.VisualBasic.FileIO.FileSystem]::DeleteDirectory('<abs path>', 'OnlyErrorDialogs', 'SendToRecycleBin')` (`DeleteFile` for a file) |
+   | Linux | `gio trash '<abs path>'`, or `trash-put '<abs path>'` (trash-cli) where `gio` is absent |
+   | macOS 15+ | `trash '<abs path>'` |
 
-   Never a variable that could be empty, never `rm`, `Remove-Item` or any recursive delete, and **never
-   empty the Recycle Bin**. Leave a worktree alone: its branch is the user's.
+   No trash command available: stop and tell the user rather than deleting. Never a variable that could
+   be empty, never `rm`, `Remove-Item` or any recursive delete, and **never empty the trash**. Leave a worktree alone: its branch is the user's.
 3. `coord leave -a NAME`. This releases everything; don't leave holding uncommitted edits without saying
    so in the summary.
-4. Report `WOUND DOWN` to the orchestrator: the summary's path and what you sent to the Recycle Bin. The
+4. Report `WOUND DOWN` to the orchestrator: the summary's path and what you sent to the trash. The
    orchestrator then closes your tab.
 
 **Staying open.** If the orchestrator asks you to wind down and you shouldn't (uncommitted work waiting on
