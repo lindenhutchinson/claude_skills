@@ -9,6 +9,8 @@ home/ is the source of truth for machine-wide Claude config that a plugin cannot
 never copied, so editing either side edits the same thing:
 
 - each directory in home/skills/ is a user-level skill, linked as a directory at <config>/skills/<name>;
+- home/settings.json is merged into <config>/settings.json, not linked: Claude Code writes machine state into
+  that file (see settings_merge.py);
 - every other file in home/ is linked as a file at the same relative path.
 
 On Linux and macOS links are symlinks. On Windows a directory is linked as a junction, which needs no
@@ -17,7 +19,8 @@ is copied, with a warning that the copy will drift.
 
 The config directory is $CLAUDE_CONFIG_DIR if set, else ~/.claude. Re-running is safe: correct links are left
 alone. An existing target that is not the right link is skipped unless --force is given, in which case it is
-moved, never deleted, into <config>/backups/sync-home/<timestamp>/.
+moved, never deleted, into <config>/sync-home/backups/<timestamp>/. settings.json is backed up there before
+every merge that changes it.
 
 Exit codes: 0 everything linked, 1 something was skipped or copied, 2 usage or environment error.
 """
@@ -26,6 +29,7 @@ from __future__ import annotations
 
 import argparse
 import filecmp
+import json
 import os
 import shutil
 import subprocess
@@ -33,9 +37,12 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+from settings_merge import merge
+
 WINDOWS = os.name == "nt"
 REPO_HOME = Path(__file__).resolve().parent.parent / "home"
 SKILLS = "skills"
+SETTINGS = "settings.json"
 
 
 def config_dir() -> Path:
@@ -69,7 +76,8 @@ class Syncer:
         self.target = target
         self.force = force
         self.dry_run = dry_run
-        self.backup_root = target / "backups" / "sync-home" / datetime.now().strftime("%Y%m%d-%H%M%S")
+        self.state = target / "sync-home"
+        self.backup_root = self.state / "backups" / datetime.now().strftime("%Y%m%d-%H%M%S")
         self.incomplete = False
 
     def report(self, action: str, label: str, detail: str = "") -> None:
@@ -132,13 +140,48 @@ class Syncer:
                 "enable Developer Mode or run once from an elevated shell with --force",
             )
 
+    def sync_settings(self, source: Path) -> None:
+        dest = self.target / SETTINGS
+        applied = self.state / "settings-applied.json"
+        if is_link(dest):
+            self.report("skip", SETTINGS, "is a link; Claude Code writes to this file, so it is merged, not linked")
+            self.incomplete = True
+            return
+        try:
+            fragment = json.loads(source.read_text(encoding="utf-8"))
+            current = json.loads(dest.read_text(encoding="utf-8")) if dest.exists() else {}
+            previous = json.loads(applied.read_text(encoding="utf-8")) if applied.exists() else None
+        except json.JSONDecodeError as error:
+            self.report("skip", SETTINGS, f"not valid JSON: {error}")
+            self.incomplete = True
+            return
+        merged = merge(current, fragment, previous)
+        if merged == current and previous == fragment:
+            self.report("ok", SETTINGS, "already merged")
+            return
+        changed = sorted(k for k in merged.keys() | current.keys() if merged.get(k) != current.get(k))
+        self.report("merge", SETTINGS, f"changes {', '.join(changed)}" if changed else "records what was applied")
+        if self.dry_run:
+            return
+        if dest.exists() and changed:
+            backup = self.backup_root / SETTINGS
+            backup.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(dest, backup)
+        if changed:
+            dest.write_text(json.dumps(merged, indent=2) + "\n", encoding="utf-8")
+        applied.parent.mkdir(parents=True, exist_ok=True)
+        applied.write_text(json.dumps(fragment, indent=2) + "\n", encoding="utf-8")
+
     def run(self) -> None:
         skills = REPO_HOME / SKILLS
+        settings = REPO_HOME / SETTINGS
         if skills.is_dir():
             for source in sorted(p for p in skills.iterdir() if p.is_dir()):
                 self.sync_skill(source)
+        if settings.is_file():
+            self.sync_settings(settings)
         for source in sorted(p for p in REPO_HOME.rglob("*") if p.is_file()):
-            if skills not in source.parents:
+            if skills not in source.parents and source != settings:
                 self.sync_file(source)
 
 

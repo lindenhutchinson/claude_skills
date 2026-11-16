@@ -1,0 +1,8 @@
+{
+  "attribution": false,
+  "permissions": {
+    "allow": [
+      "Bash(uv run --quiet --script \"$HOME/.claude/skills/coord-worker/scripts/coord.py\" reap *)"
+    ]
+  }
+}
