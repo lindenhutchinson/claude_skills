@@ -1,6 +1,6 @@
 ---
 name: orchestrator
-description: Run this session as the orchestrator over several parallel Claude Code sessions on one repo. It never implements. It starts workers as Claude sessions in Herdr tabs in its own workspace (never Agent subagents), routes requests to the owning agent, relays between user and workers, keeps the coordination board, and surfaces conflicts and decisions. Use when the user asks this session to orchestrate, coordinate or lead other sessions, or invokes /orchestrator. Workers load coord-worker instead.
+description: Act as the orchestrator over several parallel Claude Code sessions on one repo: route and relay, never implement. Use when the user asks this session to orchestrate, coordinate or lead other sessions, or invokes /orchestrator. Workers load coord-worker instead.
 ---
 
 # Orchestrator

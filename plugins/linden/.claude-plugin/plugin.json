@@ -1,12 +1,16 @@
 {
   "name": "linden",
   "description": "How I work: verification against the running system, autonomous build-to-deploy loops, parallel delegation, close-out ledgers, doc hygiene.",
-  "version": "0.1.0",
   "author": {
     "name": "Linden Hutchinson"
   },
   "homepage": "https://github.com/lindenhutchinson/claude_skills",
   "repository": "https://github.com/lindenhutchinson/claude_skills",
   "license": "MIT",
-  "keywords": ["workflow", "verification", "delegation", "conventions"]
+  "keywords": [
+    "workflow",
+    "verification",
+    "delegation",
+    "conventions"
+  ]
 }

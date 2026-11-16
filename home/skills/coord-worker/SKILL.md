@@ -1,6 +1,6 @@
 ---
 name: coord-worker
-description: Take part as a worker in a repo where several Claude Code sessions run in parallel under an orchestrator. Register on the shared coordination board, claim files before editing them, log state changes and blockers, take the @deploy/@git locks for builds, deploys and commits, then report, write a summary, clean up and wind down when finished. Use when told to load coord-worker, when an orchestrator sends an onboarding message, when your prompt names you as a worker on a coordinated repo, or when you need to know who owns a file. It is also the command reference for the coord tool, which the orchestrator uses too.
+description: Protocol and coord command reference for a worker session in a repo where several Claude Code sessions run in parallel under an orchestrator. Use when told to load coord-worker, when an orchestrator sends an onboarding message, when your prompt names you as a worker on a coordinated repo, before editing, building, deploying or committing in such a repo, or when you need to know who owns a file.
 ---
 
 # Coordinated worker

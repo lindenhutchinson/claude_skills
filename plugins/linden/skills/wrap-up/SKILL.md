@@ -1,4 +1,6 @@
 ---
+name: wrap-up
+disable-model-invocation: true
 description: Close out a session — secret and gitignore sweep, docs sync, commit, push, deploy, verify live, then report the ledger of what landed.
 ---
 

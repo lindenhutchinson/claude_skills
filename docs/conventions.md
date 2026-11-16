@@ -29,21 +29,27 @@ Status: **live** = written and installed · **drafted** = written, not yet promo
 
 | Asset | Kind | Status | Purpose |
 |---|---|---|---|
-| `wrap-up` | command | live | Close-out ritual: secret and gitignore sweep → README sync → commit → push → deploy → verify live → report what landed. |
+| `wrap-up` | skill, user-invoked only | live | Close-out ritual: secret and gitignore sweep → README sync → commit → push → deploy → verify live → report what landed. |
 | `verify-live` | skill | live | Prove a change is actually running: rebuild rather than restart, then read the live behaviour — logs, health, or browser. Never report from the diff. |
 | `quality-gate` | skill | live | Discover and run the repo's own full check loop — format, lint, typecheck, test — rather than guessing commands. |
 | `repo-orientation` | skill | live | Kickoff shape for an unfamiliar or stale repo: what still works, what's likely broken, a candid quality verdict. |
 | `docs-staleness-sweep` | skill | live | Map plan docs to shipped code, flag implemented and stale, keep READMEs outward-facing. Requested four times in different words. |
 | `committee-review` | skill | live | Parallel multi-perspective review of a design surface by a panel of subagents with distinct lenses. |
 | `checkpoint-review` | skill | live | Hoisted from an existing project, where it was already written stack-agnostically. Diff-since-baseline review at natural seams, with a stored baseline SHA and an audit trail. The strongest existing artifact; use it as the template for every other skill here. |
+| `guards` | PreToolUse hook | live | `hooks/guards/`, one module per rule. **Deny** recursive deletes and emptying the trash (every removal goes to the trash instead), and `Co-Authored-By` trailers on commits and PRs. **Ask** before `reset --hard`, forced or deleting pushes, `clean -f`, whole-tree `checkout`/`restore`, `branch -D`, `stash clear/drop`, and `DROP`/`TRUNCATE`. These rules were prose in `home/CLAUDE.md` and still got broken; a hook is what actually stops a command. A textual scan, not a sandbox: a script written to disk and then run gets past it. |
 | `write-claude-md` | skill | live | House style for a project `CLAUDE.md`: the five-part skeleton those files already converge on, rules stated with the failure they prevent, and no in-flight work log — that belongs in `TODO.md`. |
 
 ## Shared settings — `home/`
 
+Merged into `~/.claude/settings.json` from `home/settings.json` rather than linked, because Claude Code writes
+machine state into that file. Plugins cannot ship either key below.
+
 | Item | Status | Evidence |
 |---|---|---|
-| A read-only Bash allowlist in global `settings.json` | queued | The same core (`ls`, `grep`, `find`, `wc`, `git status/log/diff`) is re-derived by hand in four repos' `settings.local.json`, with drift and accidental entries. Global settings currently has no `permissions` block at all. Needs a **merge** strategy, not a file copy — `sync_home.py` links whole files and must not clobber machine-local settings. |
-| Line-ending and commit-format guards as hooks | queued | No hooks exist anywhere, despite two repos carrying hook-shaped rules enforced by prose alone. |
+| `"attribution": false` | live | Claude Code adds `Co-Authored-By` trailers by default, and told agents to add them in sessions whose `CLAUDE.md` forbade it. This turns off the cause; the `guards` hook is the backstop. |
+| Permission for `coord reap` | live | The orchestrator reaps dead workers' claims; asking every time defeated the point of delegating. |
+| A read-only Bash allowlist in global `settings.json` | queued | The same core (`ls`, `grep`, `find`, `wc`, `git status/log/diff`) is re-derived by hand in four repos' `settings.local.json`, with drift and accidental entries. Claude Code already runs `ls`, `cat`, `grep`, `find`, `wc`, `diff`, `stat` and read-only `git` without asking, so most of that is redundant. What is left is entries those built-ins miss, and `PowerShell(...)` equivalents. The merge in `home/settings.json` is where they would go. |
+| A line-ending guard as a hook | queued | Two repos carry line-ending rules enforced by prose alone. A PostToolUse hook on `Write`/`Edit` checking the file against `git check-attr eol` would be a second entry in `hooks/hooks.json`. |
 
 
 ## Deliberately not encoded

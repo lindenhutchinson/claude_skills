@@ -1,0 +1,39 @@
+name: check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  python:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pytest
+      - name: installer, against a throwaway config directory
+        shell: bash
+        run: |
+          export CLAUDE_CONFIG_DIR="$RUNNER_TEMP/claude-config"
+          mkdir -p "$CLAUDE_CONFIG_DIR"
+          uv run scripts/sync_home.py || [ $? -eq 1 ]   # 1 = a file was copied (no symlink privilege on Windows)
+          uv run scripts/sync_home.py || [ $? -eq 1 ]
+          test -f "$CLAUDE_CONFIG_DIR/skills/orchestrator/SKILL.md"
+          test -f "$CLAUDE_CONFIG_DIR/CLAUDE.md"
+          grep -q '"attribution": false' "$CLAUDE_CONFIG_DIR/settings.json"
+
+  plugin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install -g @anthropic-ai/claude-code
+      - run: claude plugin validate .
+      - run: claude plugin validate plugins/linden
