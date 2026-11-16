@@ -1,0 +1,16 @@
+{
+  "name": "linden",
+  "description": "Linden's Claude Code working standards.",
+  "owner": {
+    "name": "Linden Hutchinson"
+  },
+  "plugins": [
+    {
+      "name": "linden",
+      "source": "./plugins/linden",
+      "description": "How I work: verification against the running system, autonomous build-to-deploy loops, parallel delegation, close-out ledgers, doc hygiene.",
+      "category": "workflow",
+      "tags": ["workflow", "verification", "delegation", "conventions"]
+    }
+  ]
+}
